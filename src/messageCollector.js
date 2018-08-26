@@ -22,12 +22,8 @@ function getAllMessagesInChannels(channels) {
     const totalNumOfMsgs = result.reduce((a, b) => a + b.numOfMsgs, 0);
 
     console.log(`Finished loading a total of ${totalNumOfMsgs} messages from ${channels[0].guild.name}`);
-
-    // TODO: Figure out why file.end() errors because of
-    // "write after end" without setTimeout().
-    setTimeout(() => {
-      file.end();
-    }, 1);
+    
+    file.end();
 
     resolve(result);
   });
@@ -46,7 +42,7 @@ function getAllMessagesInChannel(channel, file) {
     while (channelHasMoreMessages) {
       const msgs = await channel.getMessages(100, id);
 
-      saveMessagesInFile(msgs, file);
+      await saveMessagesInFile(msgs, file);
 
       numOfMsgs += msgs.length;
 
@@ -60,25 +56,27 @@ function getAllMessagesInChannel(channel, file) {
       promises.push(new Promise(resolve => resolve()));
     }
   
-    Promise.all(promises).then(() => {
-      console.log(`Loaded ${numOfMsgs} messages from #${channel.name}`);
+    await Promise.all(promises);
 
-      resolve({
-        name: channel.name,
-        numOfMsgs
-      });
+    console.log(`Loaded ${numOfMsgs} messages from #${channel.name}`);
+
+    resolve({
+      name: channel.name,
+      numOfMsgs
     });
   });
 }
 
 function saveMessagesInFile(msgs, file) {
-  msgs.forEach(m => {
-    const input = [[m.timestamp, m.author.username, m.channel.name, m.content]];
-
-    csvStringify(input, (err, output) => {
-      if (err) reject(err);
-
-      file.write(output);
+  return new Promise((resolve, reject) => {
+    msgs.forEach(m => {
+      const input = [[m.timestamp, m.author.username, m.channel.name, m.content]];
+  
+      csvStringify(input, (err, output) => {
+        if (err) reject(err);
+  
+        resolve(file.write(output));
+      });
     });
   });
 }
