@@ -1,12 +1,12 @@
 "use strict";
 
 const fs = require("fs");
-const csvStringify = require('csv-stringify');
+const csvStringify = require("csv-stringify");
 
 module.exports.getAllMessagesInChannels = getAllMessagesInChannels;
 
-async function getAllMessagesInChannels(channels) {
-  return new Promise(async (resolve) => {
+function getAllMessagesInChannels(channels) {
+  return new Promise(async resolve => {
     console.log("Started loading");
 
     const file = fs.createWriteStream(__dirname + "/data_files/msgs.csv");
@@ -44,20 +44,11 @@ function getAllMessagesInChannel(channel, file) {
     let promises = [];
 
     while (channelHasMoreMessages) {
-      // The message sent by the user to initate this command will be ignored
       const msgs = await channel.getMessages(100, id);
 
-      msgs.forEach(m => {
-        const input = [[m.timestamp, m.author.username, m.channel.name, m.content]];
+      saveMessagesInFile(msgs, file);
 
-        csvStringify(input, (err, output) => {
-          if (err) reject(err);
-
-          file.write(output);
-        });
-
-        numOfMsgs++;
-      });
+      numOfMsgs += msgs.length;
 
       if (msgs.length < 50) {
         channelHasMoreMessages = false;
@@ -66,9 +57,7 @@ function getAllMessagesInChannel(channel, file) {
 
       id = msgs[msgs.length - 1].id;
 
-      promises.push(new Promise((resolve) => {
-        resolve();
-      }))
+      promises.push(new Promise(resolve => resolve()));
     }
   
     Promise.all(promises).then(() => {
@@ -78,6 +67,18 @@ function getAllMessagesInChannel(channel, file) {
         name: channel.name,
         numOfMsgs
       });
+    });
+  });
+}
+
+function saveMessagesInFile(msgs, file) {
+  msgs.forEach(m => {
+    const input = [[m.timestamp, m.author.username, m.channel.name, m.content]];
+
+    csvStringify(input, (err, output) => {
+      if (err) reject(err);
+
+      file.write(output);
     });
   });
 }

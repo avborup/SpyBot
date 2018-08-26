@@ -10,8 +10,10 @@ bot.on("ready", () => {
   console.log("Ready to collect data!");
 });
 
-bot.on("messageCreate", async (msg) => {
-  if (msg.content !== config.keyword || msg.author.id !== config.master) return
+bot.on("messageCreate", async msg => {
+  if (msg.content !== config.keyword || msg.author.id !== config.master) {
+    return;
+  }
 
   const startTime = Date.now();
 
