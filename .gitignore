@@ -3,4 +3,5 @@ package-lock.json
 visualizing_data
 src/test
 src/data_files
+src/config.json
 github_spybot
