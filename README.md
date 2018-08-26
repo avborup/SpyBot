@@ -3,6 +3,7 @@ SpyBot is a Discord bot built with [Eris](https://github.com/abalabahaha/eris).
 The purpose of the bot is nothing more than collect all messages ever
 sent in the user-specified channels and save the data in a `csv` file.
 
+# Usage
 The bot is activated by one specific user and a keyword, which can be
 defined in the configuration file. This is also where you will specify
 which channels to collect messages from.
