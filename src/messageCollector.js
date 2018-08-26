@@ -22,7 +22,7 @@ function getAllMessagesInChannels(channels) {
     const totalNumOfMsgs = result.reduce((a, b) => a + b.numOfMsgs, 0);
 
     console.log(`Finished loading a total of ${totalNumOfMsgs} messages from ${channels[0].guild.name}`);
-    
+
     file.end();
 
     resolve(result);
@@ -30,7 +30,7 @@ function getAllMessagesInChannels(channels) {
 }
 
 function getAllMessagesInChannel(channel, file) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async resolve => {
     const firstMessage = (await channel.getMessages(1))[0];
 
     let id = firstMessage.id;
@@ -67,16 +67,20 @@ function getAllMessagesInChannel(channel, file) {
   });
 }
 
-function saveMessagesInFile(msgs, file) {
-  return new Promise((resolve, reject) => {
-    msgs.forEach(m => {
-      const input = [[m.timestamp, m.author.username, m.channel.name, m.content]];
-  
+async function saveMessagesInFile(msgs, file) {
+  let promises = [];
+
+  msgs.forEach(m => {
+    const input = [[m.timestamp, m.author.username, m.channel.name, m.content]];
+
+    promises.push(new Promise((resolve, reject) => {
       csvStringify(input, (err, output) => {
         if (err) reject(err);
   
         resolve(file.write(output));
       });
-    });
+    }));
   });
+
+  return Promise.all(promises);
 }
