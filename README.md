@@ -21,6 +21,10 @@ The configuration file is in `JSON` format and looks like this:
   ]
 }
 ```
+Note that the filename for `config.example.json` needs to to be changed
+
+to `config.json` for the bot to work.
+
 To start the bot, go to the SpyBot root directory and install the
 dependencies with `npm i`.
 Then run the bot script with `node src/index.js`.
